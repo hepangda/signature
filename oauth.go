@@ -12,13 +12,15 @@ import (
 	"net/url"
 )
 
+/* The following message is defined in secret.go
 const (
-	loginURL     = "https://sso.xiyoulinux.org/oauth/authorize"
-	tokenURL     = "https://sso.xiyoulinux.org/oauth/access_token"
-	clientSecret = `SECRET`
-	clientID     = "dev_java"
-	redirectURI  = `http://localhost:8080/login`
+	loginURL     = `URL to Login`
+	tokenURL     = `URL to Get Token`
+	clientSecret = `Client Secret`
+	clientID     = `Client ID`
+	redirectURI  = `Redirect URI`
 )
+*/
 
 type oauthToken struct {
 	Token     string `json:"access_token"`

@@ -9,19 +9,19 @@ import (
 )
 
 /* 以下信息应被在Secret.go文件中定义
-const (
-	clientSecret   = `Client Secret`
-	clientID       = `Client ID`
-	redirectURI    = `Redirect URI`
-	databaseString = "Username:Password@tcp(127.0.0.1:3306)/signature"
+var app = xylinux.Secret{
+	ClientSecret: `client_secret`,
+	ClientID:     "client_id",
+	RedirectURI:  `redirect_uri`,
+}
 
-)
+const databaseString = "username:password@tcp(127.0.0.1:3306)/signature"
 */
 
 func oauthCodeGetter(w http.ResponseWriter, r *http.Request) {
 	ret := xylinux.GenerateOauthCode(r.URL.Query())
 
-	token, err := xylinux.GetToken(ret, clientID, clientSecret, redirectURI)
+	token, err := xylinux.GetToken(ret, app)
 	if err != nil {
 		log.Println("Error occured:" + err.Error())
 	}

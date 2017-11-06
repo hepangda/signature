@@ -27,7 +27,7 @@ func hfRoot(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(5 * time.Minute),
 	}
 	http.SetCookie(w, &visitOnce)
-	http.Redirect(w, r, xylinux.GenerateAddress(clientID, redirectURI), http.StatusFound)
+	http.Redirect(w, r, xylinux.GenerateAddress(app), http.StatusFound)
 }
 
 func isFirstTime(cookies []*http.Cookie) bool {

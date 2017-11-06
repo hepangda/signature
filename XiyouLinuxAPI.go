@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
 const (
-	//APIURLGetMe 获取用户信息的API接口地址
-	APIURLGetMe = "https://api.xiyoulinux.org/me"
+	//URLLogin 登录获取Code的接口地址
+	URLLogin = "https://sso.xiyoulinux.org/oauth/authorize"
+	//URLLogout 登出接口地址，直接对此地址发Get请求即可
+	URLLogout = "https://sso.xiyoulinux.org/logout"
+	//URLGetToken 根据Code获取Token的接口地址
+	URLGetToken = "https://sso.xiyoulinux.org/oauth/access_token"
+	//URLGetMe 获取用户信息的API接口地址
+	URLGetMe = "https://api.xiyoulinux.org/me"
 )
 
 // XlgUser 存储一个XiyouLinux用户信息
@@ -34,14 +39,13 @@ type XlgUser struct {
 }
 
 func apiGetMessage(token oauthToken) (XlgUser, error) {
-	eg := APIURLGetMe + "?access_token=" + token.Token
+	eg := URLGetMe + "?access_token=" + token.Token
 	res, err := http.Get(eg)
 
 	if err != nil {
 		return XlgUser{}, fmt.Errorf("Error")
 	}
 
-	log.Printf("Status: %d\n", res.StatusCode)
 	if res.StatusCode == http.StatusOK {
 		body := res.Body
 		bodyByte, _ := ioutil.ReadAll(body)

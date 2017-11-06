@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-/* The following message is defined in secret.go
+/* 以下信息应被在Secret.go文件中定义
 const (
 	loginURL     = `URL to Login`
 	tokenURL     = `URL to Get Token`

@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-
-	xylinux "./XiyouLinuxAPI"
 )
 
 func init() {
@@ -13,7 +11,6 @@ func init() {
 
 func main() {
 	go dbDistributor()
-	xylinux.Test()
 	http.HandleFunc("/", hfRoot)
 	http.HandleFunc("/login", oauthCodeGetter)
 	http.HandleFunc("/sign", hfSign)

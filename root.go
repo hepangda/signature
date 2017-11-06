@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	xylinux "./XiyouLinuxAPI"
 )
 
 func hfRoot(w http.ResponseWriter, r *http.Request) {
@@ -19,13 +21,13 @@ func hfRoot(w http.ResponseWriter, r *http.Request) {
 
 	visitOnce := http.Cookie{
 		Name:    "Identify-ID",
-		Value:   generateState(),
+		Value:   xylinux.GenerateState(),
 		Domain:  "localhost",
 		Path:    "/",
 		Expires: time.Now().Add(5 * time.Minute),
 	}
 	http.SetCookie(w, &visitOnce)
-	http.Redirect(w, r, oauthGenerateAddress(), http.StatusFound)
+	http.Redirect(w, r, xylinux.GenerateAddress(clientID, redirectURI), http.StatusFound)
 }
 
 func isFirstTime(cookies []*http.Cookie) bool {

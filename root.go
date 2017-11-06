@@ -7,9 +7,13 @@ import (
 )
 
 func hfRoot(w http.ResponseWriter, r *http.Request) {
-	isVaild := isFirstTime(r.Cookies()) && isUsingLinux(r.UserAgent())
-	if !isVaild {
-		w.Write([]byte(`You cannot Visit it!`))
+	if !isUsingLinux(r.UserAgent()) {
+		w.Write([]byte(`请检查你是否正在使用Linux系统登录。`))
+		return
+	}
+
+	if !isFirstTime(r.Cookies()) {
+		w.Write([]byte(`您已经签到过了，你可以点击此处查看您的签到信息（暂未支持）`))
 		return
 	}
 
@@ -18,10 +22,10 @@ func hfRoot(w http.ResponseWriter, r *http.Request) {
 		Value:   generateState(),
 		Domain:  "localhost",
 		Path:    "/",
-		Expires: time.Now().Add(5 * time.Second),
+		Expires: time.Now().Add(5 * time.Minute),
 	}
 	http.SetCookie(w, &visitOnce)
-	w.Write([]byte(`OK, and checked!`))
+	http.Redirect(w, r, oauthGenerateAddress(), http.StatusFound)
 }
 
 func isFirstTime(cookies []*http.Cookie) bool {

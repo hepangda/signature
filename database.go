@@ -9,19 +9,6 @@ import (
 
 var chDatabase chan interface{}
 
-type signature struct {
-	ID       string `json:"id"`
-	Username string `json:"name"`
-}
-
-type action interface {
-	Do(conn *sql.DB) error
-}
-
-type actRecord struct {
-	Dat signature
-}
-
 func (p actRecord) Do(conn *sql.DB) error {
 	_, err := conn.Exec(`insert into sign(user_id,user_name)
 						values(?,?)`, p.Dat.ID, p.Dat.Username)
@@ -42,10 +29,13 @@ func dbDistributor() {
 		switch act := thisCase.(type) {
 		case action:
 			err := act.Do(dbConn)
-			chDatabase <- err
+			if err != nil {
+				err.Error()
+			} //prevent error
+			// chDatabase <- err
 		default:
 			log.Fatalf("Unexcepted type(%T) through channel.", thisCase)
-			chDatabase <- nil
+			// chDatabase <- fmt.Errorf("MODULE DB PANIC: A UNEXCEPTED TYPE FOUND")
 		}
 	}
 }

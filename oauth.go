@@ -2,14 +2,13 @@ package main
 
 import (
 	"bytes"
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 /* The following message is defined in secret.go
@@ -21,31 +20,6 @@ const (
 	redirectURI  = `Redirect URI`
 )
 */
-
-type oauthToken struct {
-	Token     string `json:"access_token"`
-	Type      string `json:"token_type"`
-	ExpiresIn string `json:"expires_in"`
-}
-
-type oauthCode struct {
-	Code  string
-	State string
-}
-
-func (p *oauthCode) FromQuery(query url.Values) {
-	p.Code = query.Get("code")
-	p.State = query.Get("state")
-}
-
-func generateState() string {
-	p := make([]byte, 6)
-	ret := make([]byte, 8)
-	_, _ = rand.Read(p)
-	// base32.StdEncoding.Encode(ret, p)
-	base64.URLEncoding.Encode(ret, p)
-	return string(ret)[:8]
-}
 
 func oauthGenerateAddress() string {
 	u, _ := url.Parse(loginURL)
@@ -64,10 +38,20 @@ func oauthCodeGetter(w http.ResponseWriter, r *http.Request) {
 	ret.FromQuery(r.URL.Query())
 	token, err := oauthGetToken(ret)
 	if err != nil {
-		fmt.Println("Error")
-	} else {
-		apiPrintUserinfo(token)
+		log.Println("Error occured:" + err.Error())
 	}
+	usr, err := apiGetMessage(token)
+	if err != nil {
+		log.Println("Error occured:" + err.Error())
+	}
+	rec := actRecord{
+		Dat: signature{
+			ID:       strconv.Itoa(usr.ID),
+			Username: usr.Name,
+		},
+	}
+	chDatabase <- rec
+	http.Redirect(w, r, "../sign", http.StatusFound)
 }
 
 func generateParaFromMap(pm map[string]string) []byte {
@@ -100,34 +84,7 @@ func oauthGetToken(code oauthCode) (oauthToken, error) {
 
 		var token oauthToken
 		json.Unmarshal(bodyByte, &token)
-		fmt.Println("Token: " + token.Token)
 		return token, nil
 	}
 	return oauthToken{}, fmt.Errorf("Code Error: Cannot get token")
-}
-
-func apiPrintUserinfo(token oauthToken) {
-	eg := "https://api.xiyoulinux.org/me?access_token=" + token.Token
-	res, err := http.Get(eg)
-
-	if err != nil {
-		fmt.Println("Error")
-		return
-	}
-
-	if res.StatusCode == http.StatusOK {
-		body := res.Body
-		bodyByte, _ := ioutil.ReadAll(body)
-		defer body.Close()
-
-		res := make(map[string]interface{})
-		json.Unmarshal(bodyByte, &res)
-		printAny := func(name string) {
-			fmt.Print(name + ": ")
-			fmt.Println(res[name])
-		}
-		printAny("name")
-		printAny("id")
-		printAny("major")
-	}
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://7xs8o3.com1.z0.glb.clouddn.com/sign1.png">
+
+    <title>XiyouLinux Group: Signature</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="jumbotron-narrow.css" rel="stylesheet">
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="header clearfix">
+            <nav>
+                <ul class="nav nav-pills pull-right">
+                    <li role="presentation" class="active"><a href="#">签到</a></li>
+                    <li role="presentation"><a href="#">状态</a></li>
+                    <li role="presentation"><a href="#">排名</a></li>
+                </ul>
+            </nav>
+        <h3 class="text-muted">XiyouLinux Group: Signature</h3>
+    </div>
+
+    <div class="jumbotron">
+        <h2 id="ok">正在获取签到结果</h2>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2017 XiyouLinux Group.</p>
+    </footer>
+
+</div>
+
+<script>
+    $(document).ready(function(){
+        $.get("http://localhost:8080/get/name?" + GetQueryString("state"), function(data, status) {
+            var res = JSON.parse(data)
+                if (res.ok === true) {
+                    $("#ok").text("签到成功")
+                        .after(`<div class="alert alert-success" role="alert">` + res.name + `， 你已经成功签到，去做别的事情吧！</div>`)
+                } else {
+                    $("#ok").text("签到失败")
+                    .after(`<div class="alert alert-success" role="alert">签到系统可能出现了故障，请再试一次</div>`)
+            }
+        });
+      
+    });
+</script>
+</body>
+</html>

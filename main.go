@@ -6,13 +6,13 @@ import (
 )
 
 func init() {
-	chDatabase = make(chan interface{})
+	chDatabase = make(chan interface{}, 10)
 }
 
 func main() {
 	go dbDistributor()
-	http.HandleFunc("/", hfRoot)
 	http.HandleFunc("/login", oauthCodeGetter)
-	http.HandleFunc("/sign", hfSign)
+	http.HandleFunc("/get/addr", hfGetAddr)
+	http.HandleFunc("/get/name", hfGetResult)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

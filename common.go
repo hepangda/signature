@@ -7,6 +7,7 @@ import (
 type signature struct {
 	ID       string `json:"id"`
 	Username string `json:"name"`
+	State    string
 }
 
 type action interface {

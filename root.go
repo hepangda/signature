@@ -1,44 +1,52 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
-	"time"
 
 	xylinux "./XiyouLinuxAPI"
 )
 
-func hfRoot(w http.ResponseWriter, r *http.Request) {
-	if !isUsingLinux(r.UserAgent()) {
-		w.Write([]byte(`请检查你是否正在使用Linux系统登录。`))
-		return
-	}
-
-	if !isFirstTime(r.Cookies()) {
-		w.Write([]byte(`您已经签到过了，你可以点击此处查看您的签到信息（暂未支持）`))
-		return
-	}
-
-	visitOnce := http.Cookie{
-		Name:    "Identify-ID",
-		Value:   xylinux.GenerateState(),
-		Domain:  "localhost",
-		Path:    "/",
-		Expires: time.Now().Add(5 * time.Minute),
-	}
-	http.SetCookie(w, &visitOnce)
-	http.Redirect(w, r, xylinux.GenerateAddress(app), http.StatusFound)
-}
-
-func isFirstTime(cookies []*http.Cookie) bool {
-	for _, i := range cookies {
-		if i.Name == "Identify-ID" {
-			return false
-		}
-	}
-	return true
-}
-
 func isUsingLinux(ua string) bool {
 	return strings.Contains(ua, "Linux") && !strings.Contains(ua, "Windows") && !strings.Contains(ua, "Android")
+}
+
+func hfGetResult(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	state := r.URL.Query().Get("state")
+	if state == "" {
+		w.Write([]byte(`{"ok":false,"name":"#"}`))
+		return
+	}
+	query := queryState{
+		State: state,
+	}
+
+	chDatabase <- query
+	res := <-chDatabase
+	byt, _ := json.Marshal(res)
+	w.Write(byt)
+}
+
+func hfGetAddr(w http.ResponseWriter, r *http.Request) {
+	type response struct {
+		Vaild bool   `json:"vaild"`
+		Addr  string `json:"address"`
+	}
+
+	isVaild := isUsingLinux(r.UserAgent())
+	res := response{
+		Vaild: isVaild,
+		Addr:  "#",
+	}
+	if isVaild {
+		res.Addr = xylinux.GenerateAddress(app)
+	}
+
+	//本句仅限于测试
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	byt, _ := json.Marshal(res)
+	w.Write(byt)
 }

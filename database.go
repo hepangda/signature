@@ -10,9 +10,18 @@ import (
 var chDatabase chan interface{}
 
 func (p actRecord) Do(conn *sql.DB) error {
-	_, err := conn.Exec(`insert into sign(user_id,user_name)
-						values(?,?)`, p.Dat.ID, p.Dat.Username)
+	_, err := conn.Exec(`insert into sign(user_id,user_name,state)
+						values(?,?,?)`, p.Dat.ID, p.Dat.Username, p.Dat.State)
 	return err
+}
+
+type queryState struct {
+	State string
+}
+
+type queryResult struct {
+	Ok   bool   `json:"ok"`
+	Name string `json:"name"`
 }
 
 func dbDistributor() {
@@ -28,11 +37,36 @@ func dbDistributor() {
 
 		switch act := thisCase.(type) {
 		case action:
-			err := act.Do(dbConn)
+			_ = act.Do(dbConn)
+		case queryState:
+			res, err := dbConn.Query(`select user_name from sign where date(regdate)=curdate() and state=?;`, act.State)
+			defer res.Close()
 			if err != nil {
-				err.Error()
-			} //prevent error
-			// chDatabase <- err
+				chDatabase <- queryResult{
+					Ok:   false,
+					Name: "#",
+				}
+				break
+			}
+			hasResult := false
+			var name string
+			if res.Next() {
+				res.Scan(&name)
+				hasResult = true
+			}
+
+			if hasResult {
+				chDatabase <- queryResult{
+					Ok:   true,
+					Name: name,
+				}
+			} else {
+				chDatabase <- queryResult{
+					Ok:   false,
+					Name: "#",
+				}
+			}
+
 		default:
 			log.Fatalf("Unexcepted type(%T) through channel.", thisCase)
 			// chDatabase <- fmt.Errorf("MODULE DB PANIC: A UNEXCEPTED TYPE FOUND")

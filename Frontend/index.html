@@ -65,7 +65,7 @@
         }
 
         function getAddr() {
-            $.get("http://localhost:8080/get/addr", function(data, status) {
+            $.get("/get/addr", function(data, status) {
                 var res = JSON.parse(data)
                 if (res.vaild === true) {
                     $("#3").after(`<p><a class="btn btn-block btn-success" href=` + res.address + ` role="button">登录并签到！</a></p>`)

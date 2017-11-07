@@ -37,5 +37,5 @@ func oauthCodeGetter(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	chDatabase <- rec
-	http.Redirect(w, r, `file:///home/pangda/GoProjects/signature/sign.html?state=`+ret.State, http.StatusFound)
+	http.Redirect(w, r, `/sign.html?state=`+ret.State, http.StatusFound)
 }

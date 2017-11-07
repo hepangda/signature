@@ -39,12 +39,12 @@ func dbDistributor() {
 		case action:
 			_ = act.Do(dbConn)
 		case queryState:
-			res, err := dbConn.Query(`select user_name from sign where date(regdate)=curdate() and state=?;`, act.State)
+			res, err := dbConn.Query(`select user_name from sign where date(sign_time)=curdate() and state=?;`, act.State)
 			defer res.Close()
 			if err != nil {
 				chDatabase <- queryResult{
 					Ok:   false,
-					Name: "#",
+					Name: "#a",
 				}
 				break
 			}
@@ -60,10 +60,11 @@ func dbDistributor() {
 					Ok:   true,
 					Name: name,
 				}
+
 			} else {
 				chDatabase <- queryResult{
 					Ok:   false,
-					Name: "#",
+					Name: "#b",
 				}
 			}
 

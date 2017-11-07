@@ -14,10 +14,14 @@ func isUsingLinux(ua string) bool {
 
 func hfGetResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	getState := func(u string) string {
+		pos := strings.Index(u, "?")
+		return u[pos+1:]
+	}
 
-	state := r.URL.Query().Get("state")
+	state := getState(r.URL.String())
 	if state == "" {
-		w.Write([]byte(`{"ok":false,"name":"#"}`))
+		w.Write([]byte(`{"ok":false,"name":"#c"}`))
 		return
 	}
 	query := queryState{

@@ -19,6 +19,20 @@ type queryState struct {
 	State string
 }
 
+type queryRank struct {
+}
+
+type rankOne struct {
+	Rank int    `json:"rank"`
+	Name string `json:"name"`
+	Time string `json:"time"`
+}
+
+type resultRank struct {
+	Numbers int       `json:"num"`
+	Res     []rankOne `json:"res"`
+}
+
 type queryResult struct {
 	Ok   bool   `json:"ok"`
 	Name string `json:"name"`
@@ -67,7 +81,33 @@ func dbDistributor() {
 					Name: "#b",
 				}
 			}
+		case queryRank:
+			res, err := dbConn.Query(`select user_name,sign_time from sign where date(sign_time)=curdate();`)
+			defer res.Close()
+			if err != nil {
+				log.Println(err.Error())
+				chDatabase <- resultRank{
+					Numbers: 0,
+				}
+				break
+			}
 
+			var ret resultRank
+			ret.Numbers = 0
+			log.Print(1)
+			for res.Next() {
+				log.Print(1)
+				var name, time string
+				res.Scan(&name, &time)
+				ret.Numbers++
+				ret.Res = append(ret.Res, rankOne{
+					Rank: ret.Numbers,
+					Name: name,
+					Time: time,
+				})
+			}
+
+			chDatabase <- ret
 		default:
 			log.Fatalf("Unexcepted type(%T) through channel.", thisCase)
 			// chDatabase <- fmt.Errorf("MODULE DB PANIC: A UNEXCEPTED TYPE FOUND")

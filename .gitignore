@@ -16,4 +16,3 @@ signature
 
 # Secret Keys
 secret.go
-Secret.go

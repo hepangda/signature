@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -26,9 +28,9 @@
         <div class="header clearfix">
             <nav>
                 <ul class="nav nav-pills pull-right">
-                    <li role="presentation" class="active"><a href="#">签到</a></li>
-                    <li role="presentation"><a href="#">状态</a></li>
-                    <li role="presentation"><a href="#">排名</a></li>
+                    <li role="presentation" class="active"><a href="index.html">签到</a></li>
+                    <li role="presentation"><a href="ok.html">状态</a></li>
+                    <li role="presentation"><a href="here.html">排名</a></li>
                 </ul>
             </nav>
         <h3 class="text-muted">XiyouLinux Group: Signature</h3>
@@ -37,7 +39,7 @@
     <div class="jumbotron">
         <h2>立即签到</h2>
         <h4>Signature需要验证你的XiyouLinux Group账号，以便验证您的身份。</h4>
-        <div class="alert alert-warning" role="alert" id="3" connected="false">请稍等，正在尝试连接到签到服务器……（若长时间处于此状态，请尝试刷新）</div>              
+        <div class="alert alert-warning" role="alert" id="3" connected="false">请稍等，正在尝试连接到签到服务器……</div>              
     </div>
 
     <footer class="footer">
@@ -65,21 +67,34 @@
         }
 
         function getAddr() {
-            $.get("/get/addr", function(data, status) {
-                var res = JSON.parse(data)
-                if (res.vaild === true) {
-                    $("#3").after(`<p><a class="btn btn-block btn-success" href=` + res.address + ` role="button">登录并签到！</a></p>`)
-                        .attr({
+            $.ajax({
+                timeout: 8000,
+                type: "GET",
+                url: "http://182.254.130.94:8080/get/addr",
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $("#3").attr({
+                        "class": "alert alert-danger",
+                        "connected": "error"
+                    })
+                    .text(`与签到服务器连接之间出现错误，请联系管理员。`)
+                },
+
+                success: function(data, status) {
+                    var res = JSON.parse(data)
+                    if (res.vaild === true) {
+                        $("#3").after(`<p><a class="btn btn-block btn-success" href=` + res.address + ` role="button">登录并签到！</a></p>`)
+                            .attr({
                                 "class": "alert alert-success",
                                 "connected": "true"
-                        })
-                        .text(`已经为你开启了签到的大门，请点击按钮开始签到吧！`)
-                } else {
-                    $("#3").attr({
+                            })
+                            .text(`已经为你开启了签到的大门，请点击按钮开始签到吧！`)
+                    } else {
+                        $("#3").attr({
                                 "class": "alert alert-danger",
                                 "connected": "doom"
-                        })
-                        .text(`你可能没有在使用Linux系统，无法签到`)
+                            })
+                            .text(`客户端验证出现问题，请联系管理员。`)
+                    }
                 }
             });
         }
@@ -91,9 +106,6 @@
                 break;
             case "true":
                 $(this).text("已经拿到签到入口了，点击按钮开始签到吧～")
-                break;
-            case "doom":
-                $(this).text("就算你再怎么点我，没用使用Linux也没办法╮(╯_╰)╭")
                 break;
             case "signed":
                 $(this).text("你已经签到过了，可以尝试右上角的若干功能喔～")

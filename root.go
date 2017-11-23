@@ -12,14 +12,18 @@ func isUsingLinux(ua string) bool {
 	return strings.Contains(ua, "Linux") && !strings.Contains(ua, "Windows") && !strings.Contains(ua, "Android")
 }
 
+func hfFetchList(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	chDatabase <- queryRank{}
+	res := <-chDatabase
+	byt, _ := json.Marshal(res)
+	w.Write(byt)
+}
+
 func hfGetResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	getState := func(u string) string {
-		pos := strings.Index(u, "?")
-		return u[pos+1:]
-	}
 
-	state := getState(r.URL.String())
+	state := r.URL.Query().Get("state")
 	if state == "" {
 		w.Write([]byte(`{"ok":false,"name":"#c"}`))
 		return

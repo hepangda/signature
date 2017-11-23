@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -16,9 +17,8 @@
 
     <!-- Custom styles for this template -->
     <link href="jumbotron-narrow.css" rel="stylesheet">
-
     <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-
+    <script src="bootstrap.min.js"></script>
 
 </head>
 
@@ -27,44 +27,49 @@
         <div class="header clearfix">
             <nav>
                 <ul class="nav nav-pills pull-right">
-                    <li role="presentation" class="active"><a href="#">签到</a></li>
-                    <li role="presentation"><a href="#">状态</a></li>
-                    <li role="presentation"><a href="#">排名</a></li>
+                    <li role="presentation"><a href="index.html">签到</a></li>
+                    <li role="presentation"><a href="ok.html">状态</a></li>
+                    <li role="presentation" class="active"><a href="here.html">排名</a></li>
                 </ul>
             </nav>
         <h3 class="text-muted">XiyouLinux Group: Signature</h3>
     </div>
 
-    <div class="jumbotron">
-        <h2 id="ok">正在获取签到结果</h2>
+    <div class="container">
+        <h2>今日签到</h2>
+        <div class="modal-body">
+            <table class="table table-hover">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Time</th>
+                </tr>
+                <tr id='bot'>
+                    <th>#</th>
+                    <th>#</th>
+                    <th>#</th>
+                </tr>
+            </table>
+        </div>
     </div>
+
+
 
     <footer class="footer">
         <p>&copy; 2017 XiyouLinux Group.</p>
     </footer>
 
-</div>
+</div> 
 
 <script>
     $(document).ready(function(){
-        function GetQueryString(name) {
-            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-            var r = window.location.search.substr(1).match(reg);
-            if (r != null)
-                return decodeURI(r[2]);
-            return null;
-        }
-        $.get("/get/name?" + GetQueryString("state"), function(data, status) {
-            var res = JSON.parse(data)
-                if (res.ok === true) {
-                    $("#ok").text("签到成功")
-                        .after(`<div class="alert alert-success" role="alert">` + res.name + `， 你已经成功签到，去做别的事情吧！</div>`)
-                } else {
-                    $("#ok").text("签到失败")
-                    .after(`<div class="alert alert-success" role="alert">签到系统可能出现了故障，请再试一次</div>`)
+        $.get("http://182.254.130.94:8080/get/rank", function(data, status) {
+            var dat = JSON.parse(data)
+            for (var i = 0; i < dat.num; i++) {
+                $("#bot").before(`<tr><td>` + dat.res[i].rank + `</td><td>` +
+                        dat.res[i].name + `</td><td>` + dat.res[i].time + `</td></tr>`);
             }
         });
-      
     });
 </script>
 </body>

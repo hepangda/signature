@@ -25,10 +25,12 @@ func oauthCodeGetter(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error occured:" + err.Error())
 	}
+
 	usr, err := xylinux.GetMessage(token)
 	if err != nil {
 		log.Println("Error occured:" + err.Error())
 	}
+	println(token.Token)
 	rec := actRecord{
 		Dat: signature{
 			ID:       strconv.Itoa(usr.ID),
@@ -37,5 +39,5 @@ func oauthCodeGetter(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	chDatabase <- rec
-	http.Redirect(w, r, `/sign.html?state=`+ret.State, http.StatusFound)
+	http.Redirect(w, r, `http://182.254.130.94/ok.html?state=`+ret.State, http.StatusFound)
 }

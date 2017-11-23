@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://7xs8o3.com1.z0.glb.clouddn.com/sign1.png">
+
+    <title>XiyouLinux Group: Signature</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="jumbotron-narrow.css" rel="stylesheet">
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="header clearfix">
+            <nav>
+                <ul class="nav nav-pills pull-right">
+                    <li role="presentation"><a href="index.html">签到</a></li>
+                    <li role="presentation" class="active"><a href="#">状态</a></li>
+                    <li role="presentation"><a href="here.html">排名</a></li>
+                </ul>
+            </nav>
+        <h3 class="text-muted">XiyouLinux Group: Signature</h3>
+    </div>
+
+    <div class="jumbotron">
+        <h2 id="ok">正在获取签到结果</h2>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2017 XiyouLinux Group.</p>
+    </footer>
+
+</div>
+
+<script>
+    $(document).ready(function(){
+        function GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null)
+                return decodeURI(r[2]);
+            return null;
+        }
+
+        function setCookie(name, value, time) {
+            var strsec = getsec(time);
+            var exp = new Date();
+            exp.setTime(exp.getTime() + strsec * 1);
+            document.cookie = name + "=" + escape(value) + ";expires=" + exp.toGMTString();
+        }
+
+        function getCookie() {
+            const idCookie = "Identify-ID"
+            var arr, reg = new RegExp("(^| )"+ idCookie +"=([^;]*)(;|$)")
+            if (arr = document.cookie.match(reg))
+                return unescape(arr[2])
+            else
+                return null
+        }
+
+        function getsec(str) {
+            var str1 = str.substring(1, str.length) * 1;
+            var str2 = str.substring(0, 1);
+            if (str2 === "s") {
+                return str1 * 1000;
+            } else if (str2 === "h") {
+                return str1 * 60 * 60 * 1000;
+            } else if (str2 === "d") {
+                return str1 * 24 * 60 * 60 * 1000;
+            }
+        }
+
+        function doQuery(state) {
+            $.get("http://182.254.130.94:8080/get/name?state=" + state, function(data, status) {
+                var res = JSON.parse(data)
+                    if (res.ok === true) {
+                        $("#ok").text("签到成功")
+                            .after(`<div class="alert alert-success" role="alert">` + res.name + `， 你已经成功签到，去做别的事情吧！</div>`)
+                        setCookie("Identify-ID", state, "h5")
+                    } else {
+                        $("#ok").text("签到失败")
+                            .after(`<div class="alert alert-danger" role="alert">签到系统可能出现了故障，请再试一次</div>`)
+                }
+            });
+        }
+
+        var bef = getCookie("Identify-ID")
+        var qs = GetQueryString("state")
+        if (bef != null) {
+            doQuery(bef)
+        } else if (qs != null && qs != ""){
+            doQuery(qs)
+        } else {
+            $("#ok").text("你还没有完成签到！")
+                .after(`<div class="alert alert-warning" role="alert">点击右上角的签到开始签到吧！</div>`)
+        }
+      
+    });
+</script>
+</body>
+</html>
+
